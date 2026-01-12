@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High-Frequency Trading Architectures: Beyond ICC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f5f5f4; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d6d3d1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a29e; 
+        }
+
+        /* Chart Container Logic per Requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Max width constraint */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height */
+            max-height: 400px;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+
+        /* Blueprint Code Block Styling */
+        .blueprint-block {
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        /* DOM Ladder Animation */
+        @keyframes flash-bid {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(34, 197, 94, 0.2); }
+            100% { background-color: transparent; }
+        }
+        @keyframes flash-ask {
+            0% { background-color: transparent; }
+            50% { background-color: rgba(239, 68, 68, 0.2); }
+            100% { background-color: transparent; }
+        }
+        .flash-bid { animation: flash-bid 0.5s ease; }
+        .flash-ask { animation: flash-ask 0.5s ease; }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans antialiased">
+
+    <!-- Chosen Palette: Warm Neutrals (Stone/Sand) with Technical Accents -->
+    <!-- Application Structure Plan: 
+         1. Header: Context setting (ICC vs Faster Strats).
+         2. Strategy Selector (Nav): Toggle between Overview, Strategy A (Order Flow), and Strategy B (Mean Reversion).
+         3. Dynamic Content Area:
+            - Overview: Radar Chart comparing strategies on Speed, Complexity, Risk, Reward.
+            - Strategy Modules: Split into "Concept Visualization" (Chart/Sim) and "Agent Blueprint" (The Prompt).
+         4. Interactive Elements: Live DOM simulator for Order Flow, Click-to-advance candle chart for Mean Reversion.
+         Why: The user wants to build an agent. They need to 'see' the strategy logic first (Viz) and then get the instructions to build it (Blueprint).
+    -->
+
+    <!-- Visualization & Content Choices:
+         1. Radar Chart (Overview): Compares ICC (Baseline) vs Order Flow vs Mean Reversion across metrics. Goal: Inform/Compare. Lib: Chart.js.
+         2. DOM Ladder (Order Flow): HTML Table + JS updates. Simulates Level 2 data speed. Goal: Inform/Wow. Method: Vanilla JS DOM manipulation.
+         3. Bollinger Chart (Mean Reversion): Line Chart + Bands. Goal: Change/Simulate. Lib: Chart.js.
+         4. Blueprint Cards: Styled text blocks. Goal: Inform/Copy. 
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header -->
+        <header class="mb-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-stone-900 mb-2">High-Frequency Agent Architectures</h1>
+            <p class="text-stone-600 max-w-2xl mx-auto text-lg">Beyond the ICC Method: Institutional strategies for higher velocity execution.</p>
+        </header>
+
+        <!-- Navigation / Mode Selector -->
+        <div class="flex flex-wrap justify-center gap-4 mb-8">
+            <button onclick="switchTab('overview')" id="btn-overview" class="px-6 py-2 rounded-full font-medium transition-all bg-stone-800 text-stone-50 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                Strategic Overview
+            </button>
+            <button onclick="switchTab('scalper')" id="btn-scalper" class="px-6 py-2 rounded-full font-medium transition-all bg-stone-200 text-stone-600 hover:bg-stone-300">
+                Strat 1: Order Flow Scalping
+            </button>
+            <button onclick="switchTab('reversion')" id="btn-reversion" class="px-6 py-2 rounded-full font-medium transition-all bg-stone-200 text-stone-600 hover:bg-stone-300">
+                Strat 2: Mean Reversion
+            </button>
+        </div>
+
+        <!-- Section: Overview Dashboard -->
+        <section id="view-overview" class="animate-fade-in block">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <!-- Text Context -->
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                        <h2 class="text-2xl font-semibold mb-4 text-stone-800">Speed vs. Structure</h2>
+                        <p class="text-stone-600 leading-relaxed mb-4">
+                            The <strong>ICC Method</strong> (Indication, Correction, Continuation) is a robust <em>Market Structure</em> strategy. It relies on H1 Fractals and structural shifts. It is powerful but inherently slower (swing/day trading).
+                        </p>
+                        <p class="text-stone-600 leading-relaxed mb-4">
+                            To build a faster agent, you must move from <strong>Structure</strong> to <strong>Flow</strong> and <strong>Statistics</strong>. The two proposed strategies operate on sub-minute logic, requiring different architectural blueprints.
+                        </p>
+                        <div class="grid grid-cols-2 gap-4 mt-6">
+                            <div class="p-4 bg-stone-50 rounded-lg">
+                                <span class="block text-sm text-stone-500 uppercase tracking-wide">ICC Speed</span>
+                                <span class="text-xl font-bold text-stone-800">H1 / M15</span>
+                            </div>
+                            <div class="p-4 bg-stone-50 rounded-lg">
+                                <span class="block text-sm text-stone-500 uppercase tracking-wide">Scalper Speed</span>
+                                <span class="text-xl font-bold text-amber-600">Tick / M1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Radar Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 flex flex-col items-center">
+                    <h3 class="text-lg font-semibold mb-4 text-stone-700">Architecture Comparison</h3>
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                    <p class="text-xs text-stone-400 mt-4 text-center">Comparative metrics based on standard agent implementations.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Order Flow Scalping (Strategy 1) -->
+        <section id="view-scalper" class="hidden animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">Strategy 1: Order Flow Imbalance (OFI)</h2>
+                <p class="text-stone-600">
+                    <strong>Logic:</strong> Detects immediate aggressive buying or selling pressure in the Order Book (DOM).<br>
+                    <strong>Trigger:</strong> When Bid/Ask imbalance > 300% on a price level sweep.<br>
+                    <strong>Execution:</strong> M1 or Tick Charts. Exits are rapid (minutes).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Interactive Visualization -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-stone-700">Live Order Book Simulation</h3>
+                        <div class="flex gap-2">
+                             <span class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded">Aggressive Buy</span>
+                             <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded">Aggressive Sell</span>
+                        </div>
+                    </div>
+                    
+                    <!-- DOM Ladder -->
+                    <div class="border border-stone-300 rounded overflow-hidden">
+                        <table class="w-full text-sm text-right font-mono" id="dom-table">
+                            <thead class="bg-stone-100 text-stone-600">
+                                <tr>
+                                    <th class="p-2">Vol</th>
+                                    <th class="p-2">Bid</th>
+                                    <th class="p-2 text-center">Price</th>
+                                    <th class="p-2">Ask</th>
+                                    <th class="p-2">Vol</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dom-body">
+                                <!-- JS will populate this -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div id="imbalance-meter" class="text-sm font-bold text-stone-500">Imbalance: Neutral</div>
+                        <button onclick="simulateOrderFlow()" class="px-4 py-2 bg-stone-800 text-white text-sm rounded hover:bg-stone-700">Simulate Institutional Pulse</button>
+                    </div>
+                </div>
+
+                <!-- Blueprint Prompt -->
+                <div class="bg-stone-900 p-6 rounded-xl shadow-lg border border-stone-800 text-stone-300 overflow-hidden flex flex-col h-[500px]">
+                    <div class="flex justify-between items-center mb-4 border-b border-stone-700 pb-2">
+                        <h3 class="text-green-400 font-mono text-sm">PROMPT_BLUEPRINT_OFI.md</h3>
+                        <button onclick="copyToClipboard('prompt-ofi')" class="text-xs bg-stone-700 hover:bg-stone-600 px-2 py-1 rounded text-white transition-colors">Copy Prompt</button>
+                    </div>
+                    <div class="overflow-y-auto pr-2 custom-scrollbar flex-1">
+                        <div id="prompt-ofi" class="blueprint-block text-xs sm:text-sm">
+**Role:** Senior High-Frequency Trading (HFT) Developer.
+**Objective:** Build an **Order Flow Imbalance (OFI) Scalper** agent.
+**Core Logic:**
+1.  **Indication:** Connect to WebSocket for Level 2 (Order Book) data.
+2.  **Signal:** Detect **Aggressive Imbalance**: When the ratio of Market Buys to Limit Sells > 3.0 within a 5-second window (Momentum Ignition).
+3.  **Execution:** Enter at market. Target 5-10 pips/ticks fixed. Stop Loss tight (recent swing low).
+
+**System Constraints:**
+* **Language:** Python 3.10+ (Asyncio required).
+* **Data:** Websocket stream (Binance, Bybit, or OANDA v20 streaming).
+* **Speed:** Logic must execute under 200ms.
+
+**Development Protocol:**
+
+**Step 1: The Firehose (Async Data Layer)**
+* Implement `aiohttp` or `websockets` to ingest trade stream and orderbook snapshots.
+* Create a circular buffer (deque) to store the last 60 seconds of tick data.
+* *Verification:* Script outputs "Ticks per second" stats to console.
+
+**Step 2: The Imbalance Engine**
+* Calculate **Order Flow Imbalance (OFI)**: $OFI_t = (BidVol_t - BidVol_{t-1}) - (AskVol_t - AskVol_{t-1})$.
+* Implement a function `detect_absorption()`: High volume printed at a specific price level with price not moving.
+
+**Step 3: Execution Guard**
+* **Spread Filter:** Do not trade if spread > 0.5 pips.
+* **Volatility Filter:** Use standard deviation of tick returns. If vol is too low (dead market), pause.
+
+**Step 4: The Logic Loop**
+* Combine: If `OFI > Threshold` AND `Absorption == False` -> Trigger Buy.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Mean Reversion (Strategy 2) -->
+        <section id="view-reversion" class="hidden animate-fade-in">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold text-stone-800 mb-2">Strategy 2: Statistical Mean Reversion (BB-RSI)</h2>
+                <p class="text-stone-600">
+                    <strong>Logic:</strong> Price is elastic. When it stretches too far from the mean (Average), it snaps back.<br>
+                    <strong>Trigger:</strong> Price closes outside Bollinger Bands (2.5 StdDev) + RSI Extreme (>70 or <30).<br>
+                    <strong>Execution:</strong> M5 or M15 Charts. Reliable, quantitative, easier to code than Order Flow.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Interactive Visualization -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-stone-700">Mean Reversion Simulator</h3>
+                        <div class="text-sm text-stone-500">
+                            Z-Score: <span id="z-score-val" class="font-mono font-bold">0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="reversionChart"></canvas>
+                    </div>
+
+                    <div class="mt-4 flex gap-4 justify-center">
+                        <button onclick="stepReversion(false)" class="px-4 py-2 border border-stone-300 text-stone-600 text-sm rounded hover:bg-stone-50">Next Candle (Random)</button>
+                        <button onclick="stepReversion(true)" class="px-4 py-2 bg-stone-800 text-white text-sm rounded hover:bg-stone-700">Force Signal (Stretch)</button>
+                    </div>
+                </div>
+
+                <!-- Blueprint Prompt -->
+                <div class="bg-stone-900 p-6 rounded-xl shadow-lg border border-stone-800 text-stone-300 overflow-hidden flex flex-col h-[500px]">
+                    <div class="flex justify-between items-center mb-4 border-b border-stone-700 pb-2">
+                        <h3 class="text-blue-400 font-mono text-sm">PROMPT_BLUEPRINT_MEAN_REV.md</h3>
+                        <button onclick="copyToClipboard('prompt-rev')" class="text-xs bg-stone-700 hover:bg-stone-600 px-2 py-1 rounded text-white transition-colors">Copy Prompt</button>
+                    </div>
+                    <div class="overflow-y-auto pr-2 custom-scrollbar flex-1">
+                        <div id="prompt-rev" class="blueprint-block text-xs sm:text-sm">
+**Role:** Quantitative Trading Developer.
+**Objective:** Build a **Statistical Mean Reversion** agent.
+**Core Logic:**
+1.  **Indication:** Calculate a dynamic Z-Score of price relative to a 20-period Moving Average.
+2.  **Correction:** Wait for price to exceed ±2.5 Standard Deviations (Bollinger Band Blast).
+3.  **Continuation:** Enter **Counter-Trend** when RSI(7) crosses back out of overbought/oversold territory.
+
+**System Constraints:**
+* **Libraries:** `pandas`, `pandas_ta` (Technical Analysis), `numpy`.
+* **Timeframe:** M5 (5-Minute).
+
+**Development Protocol:**
+
+**Step 1: Dataframes & Vectorization**
+* Build a `MarketState` class that holds OHLCV data in a Pandas DataFrame.
+* Implement `calculate_indicators()`: Add BBands(20, 2.5) and RSI(7) columns.
+* *Check:* Ensure calculations match TradingView values exactly.
+
+**Step 2: The Signal Generator (The "Stretch")**
+* Code the specific condition:
+    `if close > upper_band AND rsi > 75: potential_short = True`
+* Code the Trigger:
+    `if potential_short AND current_close < previous_close: EXECUTE_SELL`
+
+**Step 3: Risk Management (The "Handbrake")**
+* **Dynamic Stop Loss:** Set Stop Loss at the recent High + 1 ATR.
+* **Time Stop:** If trade doesn't profit in 6 candles, close immediately (thesis invalid).
+
+**Step 4: Persistence**
+* Use a lightweight SQL Lite database to log every signal's Z-Score and outcome for backtesting analysis.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- State Management ---
+        const state = {
+            currentTab: 'overview',
+            reversionData: [],
+            reversionLabels: [],
+            reversionChartInstance: null,
+            domData: [
+                { price: 1.0005, vol: 50, type: 'ask' },
+                { price: 1.0004, vol: 120, type: 'ask' },
+                { price: 1.0003, vol: 80, type: 'ask' },
+                { price: 1.0002, vol: 200, type: 'ask' }, // Wall
+                { price: 1.0001, vol: 45, type: 'ask' },
+                { price: 1.0000, vol: '-', type: 'spread' },
+                { price: 0.9999, vol: 60, type: 'bid' },
+                { price: 0.9998, vol: 150, type: 'bid' },
+                { price: 0.9997, vol: 90, type: 'bid' },
+                { price: 0.9996, vol: 40, type: 'bid' },
+                { price: 0.9995, vol: 110, type: 'bid' }
+            ]
+        };
+
+        // --- Navigation Logic ---
+        function switchTab(tabId) {
+            // Hide all sections
+            document.getElementById('view-overview').classList.add('hidden');
+            document.getElementById('view-scalper').classList.add('hidden');
+            document.getElementById('view-reversion').classList.add('hidden');
+
+            // Reset Buttons
+            const buttons = ['btn-overview', 'btn-scalper', 'btn-reversion'];
+            buttons.forEach(btn => {
+                const el = document.getElementById(btn);
+                el.className = "px-6 py-2 rounded-full font-medium transition-all bg-stone-200 text-stone-600 hover:bg-stone-300";
+            });
+
+            // Activate Target
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.className = "px-6 py-2 rounded-full font-medium transition-all bg-stone-800 text-stone-50 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5";
+
+            state.currentTab = tabId;
+
+            // Trigger Resize for Charts if visible
+            if(tabId === 'overview' && window.compChart) window.compChart.resize();
+            if(tabId === 'reversion' && state.reversionChartInstance) state.reversionChartInstance.resize();
+        }
+
+        // --- Chart 1: Radar Comparison (Overview) ---
+        function initComparisonChart() {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            window.compChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Execution Speed', 'Code Complexity', 'Setup Frequency', 'Risk per Trade', 'Data Cost'],
+                    datasets: [{
+                        label: 'ICC Method (Structure)',
+                        data: [4, 6, 3, 5, 2],
+                        backgroundColor: 'rgba(120, 113, 108, 0.2)',
+                        borderColor: 'rgba(120, 113, 108, 1)',
+                        pointBackgroundColor: 'rgba(120, 113, 108, 1)',
+                    },
+                    {
+                        label: 'Order Flow (Scalping)',
+                        data: [10, 9, 9, 3, 9], // Very fast, complex, high freq, low risk per trade, expensive data
+                        backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                        borderColor: 'rgba(217, 119, 6, 1)',
+                        pointBackgroundColor: 'rgba(217, 119, 6, 1)',
+                    },
+                    {
+                        label: 'Mean Reversion (Stats)',
+                        data: [7, 5, 6, 6, 4], // Med fast, med complex
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e7e5e4' },
+                            grid: { color: '#e7e5e4' },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // --- Logic: DOM Simulator (Strategy 1) ---
+        function renderDOM() {
+            const tbody = document.getElementById('dom-body');
+            tbody.innerHTML = '';
+            
+            state.domData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = row.type === 'spread' ? 'bg-stone-200 font-bold text-center' : 'hover:bg-stone-50 transition-colors';
+                
+                if (row.type === 'spread') {
+                    tr.innerHTML = `<td colspan="5" class="py-1 text-xs text-stone-500 tracking-widest">--- SPREAD ---</td>`;
+                } else {
+                    const isBid = row.type === 'bid';
+                    tr.innerHTML = `
+                        <td class="p-2 text-stone-400 text-xs">${isBid ? '' : row.vol}</td>
+                        <td class="p-2 ${isBid ? 'text-green-600 font-bold' : 'text-stone-300'}">${isBid ? row.vol : ''}</td>
+                        <td class="p-2 text-stone-800 font-mono">${row.price.toFixed(4)}</td>
+                        <td class="p-2 ${!isBid ? 'text-red-600 font-bold' : 'text-stone-300'}">${!isBid ? row.vol : ''}</td>
+                        <td class="p-2 text-stone-400 text-xs">${!isBid ? '' : row.vol}</td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        function simulateOrderFlow() {
+            // Simulate a "Wall" being eaten or a flash order
+            const rows = document.getElementById('dom-body').children;
+            const randIndex = Math.floor(Math.random() * 5); // Attack the Asks (top half)
+            
+            // Visual Flash
+            rows[randIndex].classList.add('flash-ask');
+            
+            // Logic Update
+            const targetRow = state.domData[randIndex];
+            const originalVol = targetRow.vol;
+            targetRow.vol = Math.max(0, targetRow.vol - Math.floor(Math.random() * 50));
+            
+            renderDOM();
+            
+            // Update meter
+            const meter = document.getElementById('imbalance-meter');
+            meter.innerText = "Imbalance: AGGRESSIVE BUYING";
+            meter.className = "text-sm font-bold text-green-600 animate-pulse";
+
+            setTimeout(() => {
+                rows[randIndex].classList.remove('flash-ask');
+                targetRow.vol = originalVol; // Reset for demo
+                renderDOM();
+                meter.innerText = "Imbalance: Neutral";
+                meter.className = "text-sm font-bold text-stone-500";
+            }, 800);
+        }
+
+        // --- Chart 2: Mean Reversion (Strategy 2) ---
+        function initReversionChart() {
+            // Seed Data
+            let price = 100;
+            for(let i=0; i<30; i++) {
+                state.reversionLabels.push(i);
+                price = price + (Math.random() - 0.5) * 2;
+                state.reversionData.push(price);
+            }
+
+            const ctx = document.getElementById('reversionChart').getContext('2d');
+            state.reversionChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: state.reversionLabels,
+                    datasets: [
+                        {
+                            label: 'Upper Band (+2.5 SD)',
+                            data: state.reversionData.map(v => v + 3),
+                            borderColor: 'rgba(239, 68, 68, 0.4)',
+                            borderDash: [5, 5],
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Price',
+                            data: state.reversionData,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: false
+                        },
+                        {
+                            label: 'Lower Band (-2.5 SD)',
+                            data: state.reversionData.map(v => v - 3),
+                            borderColor: 'rgba(34, 197, 94, 0.4)',
+                            borderDash: [5, 5],
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 400 },
+                    scales: {
+                        y: { display: true },
+                        x: { display: false }
+                    },
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: { mode: 'index', intersect: false }
+                    }
+                }
+            });
+        }
+
+        function stepReversion(forceSignal) {
+            const chart = state.reversionChartInstance;
+            const currentPrice = state.reversionData[state.reversionData.length - 1];
+            
+            let nextPrice;
+            if(forceSignal) {
+                // Force a spike up above upper band
+                nextPrice = currentPrice + 4.5; 
+            } else {
+                // Random walk
+                nextPrice = currentPrice + (Math.random() - 0.5) * 2;
+            }
+
+            // Update Data
+            state.reversionData.push(nextPrice);
+            state.reversionLabels.push(state.reversionLabels.length);
+            
+            if(state.reversionData.length > 40) {
+                state.reversionData.shift();
+                state.reversionLabels.shift();
+            }
+
+            // Recalculate Bands (Simplified for demo: Moving Average is roughly flat, so bands are static offset)
+            // In real app, we'd calc SMA + StdDev
+            const avg = state.reversionData.reduce((a,b)=>a+b, 0) / state.reversionData.length;
+            const upper = state.reversionData.map(v => avg + 3.5); // Moving center slightly
+            const lower = state.reversionData.map(v => avg - 3.5);
+
+            chart.data.datasets[1].data = state.reversionData;
+            chart.data.datasets[0].data = upper;
+            chart.data.datasets[2].data = lower;
+
+            // Z-Score Sim
+            const zScore = (nextPrice - avg) / 1.5; // Approx SD
+            const zEl = document.getElementById('z-score-val');
+            zEl.innerText = zScore.toFixed(2);
+            
+            if (Math.abs(zScore) > 2.0) {
+                zEl.className = "font-mono font-bold text-red-600 animate-pulse";
+            } else {
+                zEl.className = "font-mono font-bold text-stone-800";
+            }
+
+            chart.update();
+        }
+
+        // --- Utilities ---
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Prompt copied to clipboard! Paste this into Gemini CLI.");
+            });
+        }
+
+        // --- Initialization ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initComparisonChart();
+            renderDOM();
+            initReversionChart();
+        });
+
+    </script>
+</body>
+</html>
